@@ -57,6 +57,9 @@ Piwik is now Matomo. Read more about this change in the [official announcement](
 ### New Features
 * New method `setSecureCookie` that sets the cookie's secure parameter
 
+### Breaking Changes
+* The JavaScript AjaxHelper does not longer support synchronous requests. All requests will be sent async instead.
+
 ### New APIs
 * The events `ScheduledTasks.shouldExecuteTask`, `ScheduledTasks.execute`, `ScheduledTasks.execute.end` have been added to customize the behaviour of scheduled tasks.
 * A new event `CustomPiwikJs.shouldAddTrackerFile` has been added to let plugins customize which tracker files should be included in piwik.js JavaScript tracker
