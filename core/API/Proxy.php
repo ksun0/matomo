@@ -164,6 +164,8 @@ class Proxy extends Singleton
             // allow plugins to manipulate the value
             $pluginName = $this->getModuleNameFromClassName($className);
 
+            $returnedValue = null;
+
             /**
              * Triggered before an API request is dispatched.
              *
@@ -184,8 +186,9 @@ class Proxy extends Singleton
              * @param array &$finalParameters List of parameters that will be passed to the API method.
              * @param string $pluginName The name of the plugin the API method belongs to.
              * @param string $methodName The name of the API method that will be called.
+             * @param mixed &$returnedValue Set this to set the result and preempt normal API invocation.
              */
-            Piwik::postEvent('API.Request.dispatch', array(&$finalParameters, $pluginName, $methodName));
+            Piwik::postEvent('API.Request.dispatch', array(&$finalParameters, $pluginName, $methodName, &$returnedValue));
 
             /**
              * Triggered before an API request is dispatched.
@@ -204,8 +207,9 @@ class Proxy extends Singleton
              *     });
              *
              * @param array &$finalParameters List of parameters that will be passed to the API method.
+             * @param mixed &$returnedValue Set this to set the result and preempt normal API invocation.
              */
-            Piwik::postEvent(sprintf('API.%s.%s', $pluginName, $methodName), array(&$finalParameters));
+            Piwik::postEvent(sprintf('API.%s.%s', $pluginName, $methodName), array(&$finalParameters, &$returnedValue));
 
             $apiParametersInCorrectOrder = array();
 
@@ -215,8 +219,10 @@ class Proxy extends Singleton
                 }
             }
 
-            // call the method
-            $returnedValue = call_user_func_array(array($object, $methodName), $apiParametersInCorrectOrder);
+            // call the method if a hook hasn't already set an output variable
+            if ($returnedValue === null) {
+                $returnedValue = call_user_func_array(array($object, $methodName), $apiParametersInCorrectOrder);
+            }
 
             $endHookParams = array(
                 &$returnedValue,
